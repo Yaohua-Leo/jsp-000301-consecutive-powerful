@@ -1,5 +1,7 @@
 # JSP-000301 — Consecutive powerful numbers without a square
 
+[![CI](https://github.com/Yaohua-Leo/jsp-000301-consecutive-powerful/actions/workflows/ci.yml/badge.svg)](https://github.com/Yaohua-Leo/jsp-000301-consecutive-powerful/actions/workflows/ci.yml)
+
 Lean 4 formalization of a counterexample to the following question from the
 Justin Sun Prize problem bank, record **JSP-000301**:
 
@@ -50,15 +52,17 @@ formalization below proves the negation of the stated question.
 | `Counterexample.lean` | The formalization: the definition, two auxiliary lemmas, and the six theorems. |
 | `StatementAudit.lean` | Restatement checks written against expanded forms of the claims, plus an axiom audit for each theorem. |
 | `lakefile.toml` | Lake package definition, with the mathlib revision pinned. |
+| `lake-manifest.json` | Resolved dependency revisions, so the build does not re-resolve. |
 | `lean-toolchain` | Pinned Lean toolchain. |
+| `.github/workflows/ci.yml` | Clean-runner build, restatement and axiom audit on every commit. |
 
 ## Build
 
 Requires [elan](https://github.com/leanprover/elan) and network access for the
-first build.
+first build. No `lake update` is needed: `lake-manifest.json` already pins every
+dependency revision.
 
 ```sh
-lake update
 lake exe cache get
 lake build
 lake env lean StatementAudit.lean
@@ -68,10 +72,17 @@ lake env lean StatementAudit.lean
 only on `propext`, `Classical.choice` and `Quot.sound`. The proof contains no
 `sorry`, `admit`, added axiom, `native_decide`, `unsafe` or `implemented_by`.
 
-Toolchain used for the archived build:
+The workflow in `.github/workflows/ci.yml` runs the same commands on a clean
+GitHub runner for every commit, then asserts that exactly six axiom reports are
+printed and that every one of them lists only
+`propext, Classical.choice, Quot.sound`. No local Lean installation is involved.
+
+Pinned versions:
 
 - Lean `4.29.0-rc6`, commit `00659f8e6071d7e46131ed643bf8003b99b044e9`
-- mathlib commit `a40f85dba285155aaaca032f3451769c6d826d50`
+- mathlib `leanprover-community/mathlib4` at commit
+  `067a2c89ad91a79c38006b1d0e8137533fadb81b`, with the transitive revisions
+  recorded in `lake-manifest.json`
 
 ## Scope and attribution
 
@@ -81,6 +92,9 @@ Toolchain used for the archived build:
   no new mathematical discovery.
 - This repository addresses the yes/no question quoted above and nothing else.
   It does not settle the separate counting question of Erdős problem #365.
+- The pinned mathlib revision is an unmodified upstream commit of
+  `leanprover-community/mathlib4`. No project-local mathlib changes are
+  involved.
 - Formalization credit for this repository follows repository ownership.
 
 ## License

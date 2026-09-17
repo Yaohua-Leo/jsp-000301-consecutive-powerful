@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install elan
+        run: |
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Build
+        run: |
+          lake exe cache get
+          lake build
+
+      - name: Restatement and axiom audit
+        run: |
+          set -o pipefail
+          lake env lean StatementAudit.lean | tee audit.txt
+
+          reported=$(grep -c 'depends on axioms' audit.txt || true)
+          if [ "$reported" -ne 6 ]; then
+            echo "::error::expected 6 axiom reports, got $reported"
+            exit 1
+          fi
+
+          if grep 'depends on axioms' audit.txt \
+               | grep -v 'depends on axioms: \[propext, Classical.choice, Quot.sound\]'; then
+            echo "::error::unexpected axiom dependency"
+            exit 1
+          fi
+
+          echo "all six theorems depend only on propext, Classical.choice, Quot.sound"
