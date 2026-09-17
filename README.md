@@ -81,7 +81,7 @@ Pinned versions:
 
 - Lean `4.29.0-rc6`, commit `00659f8e6071d7e46131ed643bf8003b99b044e9`
 - mathlib `leanprover-community/mathlib4` at commit
-  `067a2c89ad91a79c38006b1d0e8137533fadb81b`, with the transitive revisions
+  `56e100aabd35a7e33aca9b98aaa7194921f63eff`, with the transitive revisions
   recorded in `lake-manifest.json`
 
 ## Scope and attribution
